@@ -41,26 +41,31 @@
             border: 1px solid #16243c;
         }
 
-        .tarjeta-solar, header, section {
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
         /* 🖨️ REGLAS DE IMPRESIÓN PARA PDF PERFECTO */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
             body {
                 background-color: #030712 !important;
-                padding: 20px !important;
+                padding: 0 !important;
             }
             .no-print {
                 display: none !important;
             }
-            .cabecera-solar {
-                border: none !important;
-            }
             .tarjeta-solar {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 8px !important;
+                padding: 10px !important;
                 box-shadow: none !important;
-                border: 1px solid #16243c !important;
+            }
+            .h-64 {
+                height: 140px !important;
+            }
+            .max-w-5xl {
+                max-width: 100% !important;
             }
         }
     </style>
@@ -152,13 +157,12 @@
     </section>
 
     <div class="grid grid-cols-1 gap-6">
-        <section class="tarjeta-solar rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+        <section class="tarjeta-solar rounded-3xl p-6 shadow-xl">
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-base font-bold text-gray-200 flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-blue-500"></i> Producción Diaria del Inversor
                     </h3>
-                    <p class="text-xs text-gray-400 mt-1">Historial acumulado de generación global de la planta</p>
                 </div>
                 <span class="text-xs bg-[#16a34a]/10 text-emerald-400 px-3 py-1 rounded-lg border border-[#16a34a]/20 font-bold" id="mejorDiaInversorBadge">Calculando...</span>
             </div>
@@ -167,13 +171,12 @@
             </div>
         </section>
 
-        <section class="tarjeta-solar rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+        <section class="tarjeta-solar rounded-3xl p-6 shadow-xl">
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-base font-bold text-gray-200 flex items-center gap-2">
                         <i class="fa-solid fa-chart-bar text-purple-400"></i> Tu Producción Mensual
                     </h3>
-                    <p class="text-xs text-gray-400 mt-1">Cálculo individual basado en tu cuota de reparto de la comunidad</p>
                 </div>
                 <span class="text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-lg border border-amber-500/20 font-bold" id="mejorMesBadge">--</span>
             </div>
@@ -183,13 +186,12 @@
             <div id="anioActualTexto" class="text-[10px] text-gray-500 mt-2 text-right italic"></div>
         </section>
 
-        <section class="tarjeta-solar rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+        <section class="tarjeta-solar rounded-3xl p-6 shadow-xl">
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-base font-bold text-gray-200 flex items-center gap-2">
-                        <i class="fa-solid fa-user-clock text-emerald-400"></i> Tu Producción Diaria Mes Seleccionado
+                        <i class="fa-solid fa-user-clock text-emerald-400"></i> Tu Producción Diaria
                     </h3>
-                    <p class="text-xs text-gray-400 mt-1">Cálculo individual basado en tu cuota de reparto de la comunidad</p>
                 </div>
                 <span class="text-xs bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg border border-purple-500/20 font-bold" id="mejorDiaPropioBadge">--</span>
             </div>
@@ -200,13 +202,7 @@
     </div>
 
     <footer class="mt-8 border-t border-[#16243c] pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-        <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Este informe se genera dinámicamente mediante el ecosistema <span class="text-amber-400 font-semibold">SolarCRIS</span>.
-        </div>
-        <div class="text-center md:text-right text-[11px] text-gray-500">
-            <p>SolarCRIS v1.5 | Desarrollador Cristóbal Jiménez</p>
-        </div>
+        <p>SolarCRIS v1.5 | Cristóbal Jiménez</p>
     </footer>
 
     <script>
@@ -259,8 +255,8 @@
 
                 document.getElementById("picoMaximoTexto").innerText = maxInversor.toFixed(0) + " kWh";
                 document.getElementById("mejorDiaTexto").innerText = "Día " + (idxMejorInversor + 1);
-                document.getElementById("mejorDiaInversorBadge").innerText = `⭐ Récord: Día ${idxMejorInversor + 1} (${maxInversor.toFixed(0)} kWh)`;
-                document.getElementById("mejorDiaPropioBadge").innerText = `⭐ Récord Propio: Día ${idxMejorPropio + 1} (${maxPropio.toFixed(1)} kWh)`;
+                document.getElementById("mejorDiaInversorBadge").innerText = `⭐ Récord: Día ${idxMejorInversor + 1}`;
+                document.getElementById("mejorDiaPropioBadge").innerText = `⭐ Récord Propio: Día ${idxMejorPropio + 1}`;
 
                 if(chartInversor) chartInversor.destroy();
                 chartInversor = new Chart(document.getElementById("graficaInversor"), { type: 'bar', data: { labels, datasets: [{ data: valoresInversor, backgroundColor: valoresInversor.map((v, i) => i === idxMejorInversor ? "#22c55e" : "#3b82f6"), borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : Math.round(v) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxInversor * 1.15 } } } });
@@ -280,7 +276,7 @@
                 let acumuladoAnio = data.filter(d => new Date(d.mes).getFullYear() === anioSeleccionado).reduce((sum, d) => sum + Number(d.reparto), 0);
                 document.getElementById("anioActualTexto").innerText = `Acumulado Año ${anioSeleccionado}: ${acumuladoAnio.toFixed(0)} kWh`;
                 let max = Math.max(...valores); let idxMax = valores.indexOf(max);
-                document.getElementById("mejorMesBadge").innerText = `⭐ Récord Histórico: ${labels[idxMax]} (${max.toFixed(0)} kWh)`;
+                document.getElementById("mejorMesBadge").innerText = `⭐ Récord: ${labels[idxMax]}`;
                 if(chartMensual) chartMensual.destroy();
                 chartMensual = new Chart(document.getElementById("graficaMensualReal"), { type: 'bar', data: { labels, datasets: [{ data: valores, backgroundColor: valores.map((v, i) => i === idxMax ? "#22c55e" : v === Math.min(...valores) ? "#ef4444" : "#3b82f6"), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -4, font: { weight: '900', size: 13 }, textStrokeColor: '#000000', textStrokeWidth: 2, formatter: (v) => v.toFixed(0) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: max * 1.15 } } } });
             } catch(e) { console.error(e); }
