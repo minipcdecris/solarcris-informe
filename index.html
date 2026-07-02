@@ -46,17 +46,21 @@
             break-inside: avoid;
         }
 
-        /* 🖨️ REGLAS DE IMPRESIÓN */
+        /* 🖨️ REGLAS DE IMPRESIÓN PARA PDF PERFECTO */
         @media print {
             body {
                 background-color: #030712 !important;
-                padding: 0 !important;
+                padding: 20px !important;
             }
             .no-print {
                 display: none !important;
             }
             .cabecera-solar {
                 border: none !important;
+            }
+            .tarjeta-solar {
+                box-shadow: none !important;
+                border: 1px solid #16243c !important;
             }
         }
     </style>
@@ -85,6 +89,9 @@
                     <i class="fa-regular fa-calendar-days text-blue-400 text-sm"></i>
                     <input type="month" id="selectorMes" class="bg-transparent text-xs font-bold text-gray-200 focus:outline-none cursor-pointer" style="color-scheme: dark;">
                 </div>
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 px-4 rounded-xl text-xs transition-colors flex items-center gap-2 border border-blue-500 shadow-lg">
+                    <i class="fa-solid fa-file-pdf"></i> Guardar PDF
+                </button>
             </div>
         </div>
 
@@ -145,7 +152,6 @@
     </section>
 
     <div class="grid grid-cols-1 gap-6">
-        
         <section class="tarjeta-solar rounded-3xl p-6 shadow-xl flex flex-col justify-between">
             <div class="flex justify-between items-start mb-4">
                 <div>
@@ -154,9 +160,7 @@
                     </h3>
                     <p class="text-xs text-gray-400 mt-1">Historial acumulado de generación global de la planta</p>
                 </div>
-                <span class="text-xs bg-[#16a34a]/10 text-emerald-400 px-3 py-1 rounded-lg border border-[#16a34a]/20 font-bold" id="mejorDiaInversorBadge">
-                    Calculando...
-                </span>
+                <span class="text-xs bg-[#16a34a]/10 text-emerald-400 px-3 py-1 rounded-lg border border-[#16a34a]/20 font-bold" id="mejorDiaInversorBadge">Calculando...</span>
             </div>
             <div class="relative h-64 w-full">
                 <canvas id="graficaInversor"></canvas>
@@ -171,9 +175,7 @@
                     </h3>
                     <p class="text-xs text-gray-400 mt-1">Cálculo individual basado en tu cuota de reparto de la comunidad</p>
                 </div>
-                <span class="text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-lg border border-amber-500/20 font-bold" id="mejorMesBadge">
-                    --
-                </span>
+                <span class="text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-lg border border-amber-500/20 font-bold" id="mejorMesBadge">--</span>
             </div>
             <div class="relative h-64 w-full">
                 <canvas id="graficaMensualReal"></canvas>
@@ -189,15 +191,12 @@
                     </h3>
                     <p class="text-xs text-gray-400 mt-1">Cálculo individual basado en tu cuota de reparto de la comunidad</p>
                 </div>
-                <span class="text-xs bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg border border-purple-500/20 font-bold" id="mejorDiaPropioBadge">
-                    --
-                </span>
+                <span class="text-xs bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg border border-purple-500/20 font-bold" id="mejorDiaPropioBadge">--</span>
             </div>
             <div class="relative h-64 w-full">
                 <canvas id="graficaMesActualPropiaReal"></canvas>
             </div>
         </section>
-
     </div>
 
     <footer class="mt-8 border-t border-[#16243c] pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
@@ -211,80 +210,48 @@
     </footer>
 
     <script>
-        // ✅ Las credenciales de SolarEdge han sido eliminadas de aquí para proteger la instalación.
-        
-        const supabaseClient = supabase.createClient(
-            "https://mybooeipkgfwhvwszysr.supabase.co",
-            "sb_publishable_N7BPbBJcbKUElxxRg6xkCw_uj99wyuy"
-        );
-
+        const supabaseClient = supabase.createClient("https://mybooeipkgfwhvwszysr.supabase.co", "sb_publishable_N7BPbBJcbKUElxxRg6xkCw_uj99wyuy");
         Chart.register(ChartDataLabels);
-
         const ticksConfig = { color: '#94a3b8', font: { size: 10, weight: 'bold' } };
         const gridConfig = { color: 'rgba(34, 52, 86, 0.15)', drawBorder: false };
-
         let chartInversor, chartMensual, chartPropia;
 
-        function formatearEnergia(valor) {
-            return valor >= 1000 ? (valor / 1000).toFixed(1) + " MWh" : valor.toFixed(0) + " kWh";
-        }
+        function formatearEnergia(valor) { return valor >= 1000 ? (valor / 1000).toFixed(1) + " MWh" : valor.toFixed(0) + " kWh"; }
 
         function obtenerFechasMes() {
             const selector = document.getElementById("selectorMes").value;
             const [year, month] = selector.split("-");
             const diasMes = new Date(year, month, 0).getDate();
-            return {
-                year: parseInt(year),
-                monthStr: month,
-                diasMes: diasMes,
-                startDate: `${year}-${month}-01`,
-                endDate: `${year}-${month}-${String(diasMes).padStart(2, '0')}`
-            };
+            return { year: parseInt(year), monthStr: month, diasMes: diasMes, startDate: `${year}-${month}-01`, endDate: `${year}-${month}-${String(diasMes).padStart(2, '0')}` };
         }
 
         async function cargarDatosEInformes() {
             const { year, monthStr, diasMes, startDate, endDate } = obtenerFechasMes();
-            
             const fechaObj = new Date(year, parseInt(monthStr) - 1, 1);
             document.getElementById("periodoTexto").innerText = fechaObj.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
             try {
-                // 1. OBTENER TOTALES DESDE NUESTRA API INTERNA SEGURA EN VERCEL
                 let r = await fetch(`/api/solaredge?timeUnit=MONTH&startDate=${startDate}&endDate=${endDate}`);
                 let d = await r.json();
-
                 let totalMes = ((d.energy?.values?.[0]?.value || 0) / 1000000) * 1000;
-                
-                // Constantes de participación de la comunidad de vecinos
-                const CUOTA_PARTICIPACION = 0.0127; // 1.27%
-                const FACTOR_AJUSTE = 0.974;
+                const CUOTA_PARTICIPACION = 0.0127; const FACTOR_AJUSTE = 0.974;
                 let tuParte = totalMes * CUOTA_PARTICIPACION * FACTOR_AJUSTE;
-
                 document.getElementById("mesTotal").innerText = formatearEnergia(totalMes);
                 document.getElementById("mesProp").innerText = tuParte.toFixed(0) + " kWh";
-
-                // Sincronizar en Supabase
                 await supabaseClient.from('produccion').upsert({ mes: `${year}-${monthStr}-01`, reparto: tuParte, produccion: totalMes / 1000 }, { onConflict: 'mes' });
 
-                // 2. PROCESAR HISTORIAL DIARIO DESDE VERCEL
                 let rDiario = await fetch(`/api/solaredge?timeUnit=DAY&startDate=${startDate}&endDate=${endDate}`);
                 let dDiario = await rDiario.json();
                 let valoresRaw = dDiario.energy?.values || [];
-
                 let labels = [], valoresInversor = [], valoresPropios = [];
-                let maxInversor = 0, idxMejorInversor = 0;
-                let maxPropio = 0, idxMejorPropio = 0;
+                let maxInversor = 0, idxMejorInversor = 0, maxPropio = 0, idxMejorPropio = 0;
 
                 for(let i = 0; i < diasMes; i++) {
                     labels.push((i+1).toString());
                     let datoDia = valoresRaw.find(v => new Date(v.date).getDate() === (i+1));
-                    
-                    // Datos inversor
                     let kwhInversor = datoDia ? (datoDia.value / 1000) : 0;
                     valoresInversor.push(kwhInversor);
                     if(kwhInversor > maxInversor) { maxInversor = kwhInversor; idxMejorInversor = i; }
-
-                    // Datos propios
                     let kwhPropio = kwhInversor * CUOTA_PARTICIPACION * FACTOR_AJUSTE;
                     valoresPropios.push(kwhPropio);
                     if(kwhPropio > maxPropio) { maxPropio = kwhPropio; idxMejorPropio = i; }
@@ -295,24 +262,13 @@
                 document.getElementById("mejorDiaInversorBadge").innerText = `⭐ Récord: Día ${idxMejorInversor + 1} (${maxInversor.toFixed(0)} kWh)`;
                 document.getElementById("mejorDiaPropioBadge").innerText = `⭐ Récord Propio: Día ${idxMejorPropio + 1} (${maxPropio.toFixed(1)} kWh)`;
 
-                // Gráfica 1
                 if(chartInversor) chartInversor.destroy();
-                chartInversor = new Chart(document.getElementById("graficaInversor"), {
-                    type: 'bar',
-                    data: { labels, datasets: [{ data: valoresInversor, backgroundColor: valoresInversor.map((v, i) => i === idxMejorInversor ? "#22c55e" : "#3b82f6"), borderRadius: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : Math.round(v) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxInversor * 1.15 } } }
-                });
+                chartInversor = new Chart(document.getElementById("graficaInversor"), { type: 'bar', data: { labels, datasets: [{ data: valoresInversor, backgroundColor: valoresInversor.map((v, i) => i === idxMejorInversor ? "#22c55e" : "#3b82f6"), borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : Math.round(v) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxInversor * 1.15 } } } });
 
-                // Gráfica 3
                 if(chartPropia) chartPropia.destroy();
-                chartPropia = new Chart(document.getElementById("graficaMesActualPropiaReal"), {
-                    type: 'bar',
-                    data: { labels, datasets: [{ data: valoresPropios, backgroundColor: valoresPropios.map((v, i) => i === idxMejorPropio ? "#22c55e" : "#8b5cf6"), borderRadius: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : v.toFixed(1) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxPropio * 1.15 } } }
-                });
+                chartPropia = new Chart(document.getElementById("graficaMesActualPropiaReal"), { type: 'bar', data: { labels, datasets: [{ data: valoresPropios, backgroundColor: valoresPropios.map((v, i) => i === idxMejorPropio ? "#22c55e" : "#8b5cf6"), borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : v.toFixed(1) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxPropio * 1.15 } } } });
 
                 await inicializarGraficaMensual(year);
-
             } catch(e) { console.error(e); }
         }
 
@@ -320,43 +276,23 @@
             try {
                 const { data } = await supabaseClient.from('produccion').select('*').order('mes');
                 let labels = [], valores = [];
-
-                data.forEach(d => {
-                    let f = new Date(d.mes);
-                    labels.push(f.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '') + f.getFullYear().toString().slice(-2));
-                    valores.push(Number(d.reparto));
-                });
-
+                data.forEach(d => { let f = new Date(d.mes); labels.push(f.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '') + f.getFullYear().toString().slice(-2)); valores.push(Number(d.reparto)); });
                 let acumuladoAnio = data.filter(d => new Date(d.mes).getFullYear() === anioSeleccionado).reduce((sum, d) => sum + Number(d.reparto), 0);
                 document.getElementById("anioActualTexto").innerText = `Acumulado Año ${anioSeleccionado}: ${acumuladoAnio.toFixed(0)} kWh`;
-
-                let max = Math.max(...valores);
-                let idxMax = valores.indexOf(max);
+                let max = Math.max(...valores); let idxMax = valores.indexOf(max);
                 document.getElementById("mejorMesBadge").innerText = `⭐ Récord Histórico: ${labels[idxMax]} (${max.toFixed(0)} kWh)`;
-
                 if(chartMensual) chartMensual.destroy();
-                chartMensual = new Chart(document.getElementById("graficaMensualReal"), {
-                    type: 'bar',
-                    data: { labels, datasets: [{ data: valores, backgroundColor: valores.map((v, i) => i === idxMax ? "#22c55e" : v === Math.min(...valores) ? "#ef4444" : "#3b82f6"), borderRadius: 6 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -4, font: { weight: '900', size: 13 }, textStrokeColor: '#000000', textStrokeWidth: 2, formatter: (v) => v.toFixed(0) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: max * 1.15 } } }
-                });
+                chartMensual = new Chart(document.getElementById("graficaMensualReal"), { type: 'bar', data: { labels, datasets: [{ data: valores, backgroundColor: valores.map((v, i) => i === idxMax ? "#22c55e" : v === Math.min(...valores) ? "#ef4444" : "#3b82f6"), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -4, font: { weight: '900', size: 13 }, textStrokeColor: '#000000', textStrokeWidth: 2, formatter: (v) => v.toFixed(0) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: max * 1.15 } } } });
             } catch(e) { console.error(e); }
         }
 
         window.onload = async () => {
             let hoy = new Date();
             let mesPorDefecto = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
-            
             const selector = document.getElementById("selectorMes");
-            
-            // 🔒 BLOQUEO DE FECHAS FUTURAS:
             selector.max = mesPorDefecto;
-            
-            // Asignar el mes actual por defecto
             selector.value = mesPorDefecto;
-
             selector.addEventListener("change", cargarDatosEInformes);
-
             await cargarDatosEInformes();
         };
     </script>
