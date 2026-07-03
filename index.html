@@ -63,19 +63,19 @@
                 border-radius: 12px !important;
             }
             .cabecera-solar h1 {
-                font-size: 1.1rem !important; /* Título más pequeño */
+                font-size: 1.1rem !important; 
                 margin-top: 4px !important;
                 line-height: 1.2 !important;
             }
             .cabecera-solar p {
-                font-size: 0.75rem !important; /* Subtítulo más pequeño */
+                font-size: 0.75rem !important; 
                 margin-top: 2px !important;
             }
-            .mt-8 { /* Margen del bloque "Periodo" */
+            .mt-8 { 
                 margin-top: 10px !important;
             }
 
-            /* 2️⃣ COMPACTAR EL RESUMEN DEL MES */
+            /* 2️⃣ RESUMEN DEL MES (FORZAR 1 LÍNEA CON 4 COLUMNAS) */
             .tarjeta-solar {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -85,27 +85,40 @@
                 border-radius: 12px !important;
             }
             .tarjeta-solar h2 {
-                margin-bottom: 8px !important;
+                margin-bottom: 6px !important;
             }
-            /* Ajustamos las 4 cajitas interiores del resumen */
-            .tarjeta-solar .grid {
-                gap: 8px !important;
+            
+            /* TRUCO: Forzamos la cuadrícula a 4 columnas precisas */
+            .grid-cols-2 {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                gap: 6px !important; /* Espacio muy pequeño entre cajas */
             }
+            
+            /* Ajustamos el contenido de cada cajita para que quepa bien */
             .bg-\[\#0e1a2f\] { 
-                padding: 8px !important; /* Menos relleno en las cajas oscuras */
+                padding: 6px !important; 
+                gap: 6px !important;
             }
-            .w-12.h-12 { /* Hacemos los iconos más pequeños */
-                width: 32px !important;
-                height: 32px !important;
-                font-size: 14px !important;
+            /* Hacemos los iconos más pequeños y evitamos que se aplasten */
+            .w-12.h-12 { 
+                width: 26px !important;
+                height: 26px !important;
+                font-size: 12px !important;
+                flex-shrink: 0 !important;
             }
-            .bg-\[\#0e1a2f\] p.text-lg { /* Tamaños de los números (MWh / kWh) */
-                font-size: 1.1rem !important;
-                margin-top: 2px !important;
+            /* Hacemos la letra de la etiqueta y el número más pequeñas */
+            .bg-\[\#0e1a2f\] p.text-\[11px\] { 
+                font-size: 0.55rem !important; 
+                line-height: 1.1 !important;
+                white-space: nowrap !important; /* Evita que el texto salte de línea */
+            }
+            .bg-\[\#0e1a2f\] p.text-lg,
+            .bg-\[\#0e1a2f\] p.text-sm { 
+                font-size: 0.9rem !important; 
+                margin-top: 0px !important;
             }
 
-            /* 3️⃣ DAR MÁS ESPACIO A LAS GRÁFICAS PARA QUE LA LETRA CREZCA */
-            /* Como hemos ahorrado espacio arriba, ampliamos las gráficas de 160px a 220px */
+            /* 3️⃣ DAR MÁS ESPACIO A LAS GRÁFICAS */
             .h-64 {
                 height: 220px !important; 
             }
