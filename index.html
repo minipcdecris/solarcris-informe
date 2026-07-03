@@ -41,11 +41,11 @@
             border: 1px solid #16243c;
         }
 
-        /* 🖨️ REGLAS DE IMPRESIÓN PARA PDF PERFECTO */
+        /* 🖨️ REGLAS DE IMPRESIÓN PARA PDF DE 1 PÁGINA */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 8mm; 
+                margin: 5mm; /* Ganamos espacio vital en los bordes del papel */
             }
             body {
                 background-color: #030712 !important;
@@ -55,88 +55,53 @@
                 display: none !important;
             }
             
-            /* 1️⃣ COMPACTAR LA CABECERA */
+            /* 1️⃣ CABECERA MILIMÉTRICA */
             .cabecera-solar {
-                padding: 12px 16px !important;
-                margin-bottom: 8px !important;
+                padding: 8px 12px !important;
+                margin-bottom: 6px !important;
                 border: none !important;
-                border-radius: 12px !important;
+                border-radius: 8px !important;
             }
-            .cabecera-solar h1 {
-                font-size: 1.1rem !important; 
-                margin-top: 4px !important;
-                line-height: 1.2 !important;
-            }
-            .cabecera-solar p {
-                font-size: 0.75rem !important; 
-                margin-top: 2px !important;
-            }
-            .mt-8 { 
-                margin-top: 10px !important;
-            }
+            .cabecera-solar h1 { font-size: 1rem !important; margin-top: 2px !important; line-height: 1.1 !important; }
+            .cabecera-solar p { font-size: 0.7rem !important; margin-top: 0px !important; }
+            .mt-8 { margin-top: 4px !important; }
 
-            /* 2️⃣ RESUMEN DEL MES (FORZAR 1 LÍNEA CON 4 COLUMNAS) */
+            /* 2️⃣ RESUMEN EN 1 LÍNEA EXTRA PLANA */
             .tarjeta-solar {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
-                margin-bottom: 8px !important;
-                padding: 10px !important;
+                margin-bottom: 6px !important; /* Menos aire entre tarjetas */
+                padding: 8px 12px !important; /* Relleno interior de tarjeta reducido */
                 box-shadow: none !important;
-                border-radius: 12px !important;
+                border-radius: 8px !important;
             }
-            .tarjeta-solar h2 {
-                margin-bottom: 6px !important;
-            }
-            
-            /* TRUCO: Forzamos la cuadrícula a 4 columnas precisas */
+            .tarjeta-solar h2 { margin-bottom: 4px !important; font-size: 0.7rem !important; }
             .grid-cols-2 {
                 grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-                gap: 6px !important; /* Espacio muy pequeño entre cajas */
+                gap: 4px !important;
             }
-            
-            /* Ajustamos el contenido de cada cajita para que quepa bien */
-            .bg-\[\#0e1a2f\] { 
-                padding: 6px !important; 
-                gap: 6px !important;
-            }
-            /* Hacemos los iconos más pequeños y evitamos que se aplasten */
-            .w-12.h-12 { 
-                width: 26px !important;
-                height: 26px !important;
-                font-size: 12px !important;
-                flex-shrink: 0 !important;
-            }
-            /* Hacemos la letra de la etiqueta y el número más pequeñas */
-            .bg-\[\#0e1a2f\] p.text-\[11px\] { 
-                font-size: 0.55rem !important; 
-                line-height: 1.1 !important;
-                white-space: nowrap !important; /* Evita que el texto salte de línea */
-            }
-            .bg-\[\#0e1a2f\] p.text-lg,
-            .bg-\[\#0e1a2f\] p.text-sm { 
-                font-size: 0.9rem !important; 
-                margin-top: 0px !important;
-            }
+            .bg-\[\#0e1a2f\] { padding: 4px 6px !important; gap: 6px !important; }
+            .w-12.h-12 { width: 22px !important; height: 22px !important; font-size: 10px !important; flex-shrink: 0 !important; }
+            .bg-\[\#0e1a2f\] p.text-\[11px\] { font-size: 0.55rem !important; line-height: 1 !important; white-space: nowrap !important; }
+            .bg-\[\#0e1a2f\] p.text-lg, .bg-\[\#0e1a2f\] p.text-sm { font-size: 0.9rem !important; margin-top: 0px !important; }
 
-            /* 3️⃣ DAR MÁS ESPACIO A LAS GRÁFICAS */
-            .h-64 {
-                height: 220px !important; 
-            }
+            /* 3️⃣ EL PUNTO DULCE PARA 3 GRÁFICAS (185px) */
+            .h-64 { height: 185px !important; }
             canvas {
-                max-height: 220px !important;
-                height: 220px !important;
+                max-height: 185px !important;
+                height: 185px !important;
                 width: 100% !important;
                 object-fit: contain;
             }
             
-            /* Ajustes finales de espaciado */
-            .gap-6 {
-                gap: 8px !important;
-            }
-            footer {
-                margin-top: 8px !important;
-                padding-top: 8px !important;
-            }
+            /* Compactamos los títulos de las gráficas */
+            .tarjeta-solar h3 { font-size: 0.9rem !important; margin-bottom: 0px !important; }
+            .tarjeta-solar p.text-xs { font-size: 0.65rem !important; margin-top: 0px !important; }
+            .mb-4 { margin-bottom: 4px !important; } /* Título a gráfica más pegado */
+            
+            /* Ajustes de footer y espacios finales */
+            .gap-6 { gap: 6px !important; }
+            footer { margin-top: 4px !important; padding-top: 4px !important; font-size: 0.65rem !important; }
         }
     </style>
 </head>
