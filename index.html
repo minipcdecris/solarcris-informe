@@ -299,14 +299,22 @@
 
                 document.getElementById("picoMaximoTexto").innerText = maxInversor.toFixed(0) + " kWh";
                 document.getElementById("mejorDiaTexto").innerText = "Día " + (idxMejorInversor + 1);
-                document.getElementById("mejorDiaInversorBadge").innerText = `⭐ Récord: Día ${idxMejorInversor + 1} (${maxInversor.toFixed(0)} kWh)`;
-                document.getElementById("mejorDiaPropioBadge").innerText = `⭐ Récord Propio: Día ${idxMejorPropio + 1} (${maxPropio.toFixed(1)} kWh)`;
+                document.getElementById("mejorDiaInversorBadge").innerText = `⭐ Récord: Día ${idxMejorInversor + 1}`;
+                document.getElementById("mejorDiaPropioBadge").innerText = `⭐ Récord Propio: Día ${idxMejorPropio + 1}`;
 
                 if(chartInversor) chartInversor.destroy();
-                chartInversor = new Chart(document.getElementById("graficaInversor"), { type: 'bar', data: { labels, datasets: [{ data: valoresInversor, backgroundColor: valoresInversor.map((v, i) => i === idxMejorInversor ? "#22c55e" : "#3b82f6"), borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : Math.round(v) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxInversor * 1.15 } } } });
+                chartInversor = new Chart(document.getElementById("graficaInversor"), { 
+                    type: 'bar', 
+                    data: { labels, datasets: [{ data: valoresInversor, backgroundColor: valoresInversor.map((v, i) => i === idxMejorInversor ? "#22c55e" : "#3b82f6"), borderRadius: 4 }] }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 10.5 }, formatter: (v) => v <= 0 ? "" : Math.round(v) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxInversor * 1.15 } } } 
+                });
 
                 if(chartPropia) chartPropia.destroy();
-                chartPropia = new Chart(document.getElementById("graficaMesActualPropiaReal"), { type: 'bar', data: { labels, datasets: [{ data: valoresPropios, backgroundColor: valoresPropios.map((v, i) => i === idxMejorPropio ? "#22c55e" : "#8b5cf6"), borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 8 }, formatter: (v) => v <= 0 ? "" : v.toFixed(1) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxPropio * 1.15 } } } });
+                chartPropia = new Chart(document.getElementById("graficaMesActualPropiaReal"), { 
+                    type: 'bar', 
+                    data: { labels, datasets: [{ data: valoresPropios, backgroundColor: valoresPropios.map((v, i) => i === idxMejorPropio ? "#22c55e" : "#8b5cf6"), borderRadius: 4 }] }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -2, font: { weight: 'bold', size: 10.5 }, formatter: (v) => v <= 0 ? "" : v.toFixed(1) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: maxPropio * 1.15 } } } 
+                });
 
                 await inicializarGraficaMensual(year);
             } catch(e) { console.error(e); }
@@ -320,9 +328,14 @@
                 let acumuladoAnio = data.filter(d => new Date(d.mes).getFullYear() === anioSeleccionado).reduce((sum, d) => sum + Number(d.reparto), 0);
                 document.getElementById("anioActualTexto").innerText = `Acumulado Año ${anioSeleccionado}: ${acumuladoAnio.toFixed(0)} kWh`;
                 let max = Math.max(...valores); let idxMax = valores.indexOf(max);
-                document.getElementById("mejorMesBadge").innerText = `⭐ Récord Histórico: ${labels[idxMax]} (${max.toFixed(0)} kWh)`;
+                document.getElementById("mejorMesBadge").innerText = `⭐ Récord: ${labels[idxMax]}`;
+                
                 if(chartMensual) chartMensual.destroy();
-                chartMensual = new Chart(document.getElementById("graficaMensualReal"), { type: 'bar', data: { labels, datasets: [{ data: valores, backgroundColor: valores.map((v, i) => i === idxMax ? "#22c55e" : v === Math.min(...valores) ? "#ef4444" : "#3b82f6"), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -4, font: { weight: '900', size: 13 }, textStrokeColor: '#000000', textStrokeWidth: 2, formatter: (v) => v.toFixed(0) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: max * 1.15 } } } });
+                chartMensual = new Chart(document.getElementById("graficaMensualReal"), { 
+                    type: 'bar', 
+                    data: { labels, datasets: [{ data: valores, backgroundColor: valores.map((v, i) => i === idxMax ? "#22c55e" : v === Math.min(...valores) ? "#ef4444" : "#3b82f6"), borderRadius: 6 }] }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#ffffff', anchor: 'end', align: 'top', offset: -4, font: { weight: '900', size: 16 }, textStrokeColor: '#000000', textStrokeWidth: 2, formatter: (v) => v.toFixed(0) } }, scales: { x: { grid: { display: false }, ticks: ticksConfig }, y: { grid: gridConfig, ticks: ticksConfig, beginAtZero: true, suggestedMax: max * 1.15 } } } 
+                });
             } catch(e) { console.error(e); }
         }
 
